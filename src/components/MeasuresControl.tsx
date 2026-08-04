@@ -29,12 +29,12 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 10,
   },
   label: {
     flex: 1,
     color: colors.text,
-    fontSize: 15,
+    fontSize: 14,
   },
   valueWrap: {
     flex: 1,
@@ -42,9 +42,9 @@ const styles = StyleSheet.create({
   },
   value: {
     color: colors.text,
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: '700',
     fontVariant: ['tabular-nums'],
-    lineHeight: 28,
+    lineHeight: 26,
   },
 });

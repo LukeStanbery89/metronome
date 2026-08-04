@@ -20,7 +20,7 @@ export function Toggle({ value, onChange }: ToggleProps) {
 
   const thumbTranslate = anim.interpolate({
     inputRange: [0, 1],
-    outputRange: [2, 18],
+    outputRange: [2, 16],
   });
 
   return (
@@ -45,9 +45,9 @@ export function Toggle({ value, onChange }: ToggleProps) {
   );
 }
 
-const TRACK_WIDTH = 44;
-const TRACK_HEIGHT = 28;
-const THUMB_SIZE = 24;
+const TRACK_WIDTH = 40;
+const TRACK_HEIGHT = 24;
+const THUMB_SIZE = 20;
 
 const styles = StyleSheet.create({
   row: {

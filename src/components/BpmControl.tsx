@@ -97,13 +97,13 @@ export function BpmControl({
 
 const styles = StyleSheet.create({
   wrap: {
-    gap: spacing.md,
+    gap: spacing.sm,
   },
   readoutRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    gap: spacing.md,
+    gap: spacing.sm,
   },
   readout: {
     flex: 1,
@@ -112,31 +112,31 @@ const styles = StyleSheet.create({
   },
   bpmText: {
     color: colors.text,
-    fontSize: 46,
+    fontSize: 40,
     fontWeight: '700',
     fontVariant: ['tabular-nums'],
-    lineHeight: 50,
+    lineHeight: 44,
   },
   bpmInput: {
     color: colors.text,
-    fontSize: 46,
+    fontSize: 40,
     fontWeight: '700',
     fontVariant: ['tabular-nums'],
-    lineHeight: 50,
+    lineHeight: 44,
     textAlign: 'center',
-    minWidth: 96,
+    minWidth: 88,
     padding: 0,
     backgroundColor: colors.surfaceAlt,
     borderRadius: radius.sm,
   },
   bpmUnit: {
     color: colors.textDim,
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '600',
     letterSpacing: 2,
   },
   slider: {
     width: '100%',
-    height: 32,
+    height: 26,
   },
 });

@@ -8,7 +8,7 @@ export const colors = {
   textFaint: '#5A606A',
   accent: '#F0A23C',
   accentSoft: 'rgba(240, 162, 60, 0.18)',
-  downbeat: '#F0A23C',
+  measure: '#F0A23C',
   beat: '#B8BEC9',
   countin: '#6FB89A',
   stop: '#E0524A',

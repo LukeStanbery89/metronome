@@ -32,7 +32,7 @@ export function TabBar({ active, onChange }: TabBarProps) {
           >
             <Ionicons
               name={isActive ? tab.icon : `${tab.icon}-outline` as keyof typeof Ionicons.glyphMap}
-              size={16}
+              size={15}
               color={isActive ? colors.accent : colors.textDim}
             />
             <Text style={[styles.label, isActive && styles.labelActive]}>
@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    paddingVertical: 10,
+    paddingVertical: 8,
     borderRadius: radius.md,
   },
   tabActive: {
@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
   },
   label: {
     color: colors.textDim,
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
   },
   labelActive: {

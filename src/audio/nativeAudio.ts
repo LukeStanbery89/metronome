@@ -3,8 +3,9 @@ import { Accent } from '../types';
 import { AudioBackend } from './types';
 
 const SOURCES: Record<Accent, number> = {
-  downbeat: require('../../assets/clicks/downbeat.wav'),
+  measure: require('../../assets/clicks/measure.wav'),
   beat: require('../../assets/clicks/beat.wav'),
+  subdivision: require('../../assets/clicks/subdivision.wav'),
   countin: require('../../assets/clicks/countin.wav'),
 };
 
@@ -28,9 +29,10 @@ export class NativeAudioBackend implements AudioBackend {
       playsInSilentMode: true,
       interruptionMode: 'mixWithOthers',
     }).catch(() => {});
-    if (!this.players.downbeat) {
-      this.players.downbeat = createAudioPlayer(SOURCES.downbeat);
+    if (!this.players.measure) {
+      this.players.measure = createAudioPlayer(SOURCES.measure);
       this.players.beat = createAudioPlayer(SOURCES.beat);
+      this.players.subdivision = createAudioPlayer(SOURCES.subdivision);
       this.players.countin = createAudioPlayer(SOURCES.countin);
     }
     this.timer = setInterval(() => this.pump(), 4);

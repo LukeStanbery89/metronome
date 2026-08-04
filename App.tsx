@@ -57,30 +57,30 @@ const styles = StyleSheet.create({
   shell: {
     flex: 1,
     width: '100%',
-    maxWidth: 440,
+    maxWidth: 420,
     alignSelf: 'center',
     paddingHorizontal: spacing.md,
   },
   header: {
     paddingTop: spacing.xs,
-    paddingBottom: spacing.md,
+    paddingBottom: spacing.sm,
     gap: 2,
   },
   title: {
     color: colors.text,
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: '800',
     letterSpacing: 0.5,
   },
   subtitle: {
     color: colors.textFaint,
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '600',
     letterSpacing: 1,
     textTransform: 'uppercase',
   },
   tabBarWrap: {
-    paddingBottom: spacing.md,
+    paddingBottom: spacing.sm,
   },
   content: {
     flex: 1,

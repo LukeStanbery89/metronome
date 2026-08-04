@@ -2,8 +2,9 @@ import { Accent } from '../types';
 import { AudioBackend } from './types';
 
 const CLICK_SPECS: Record<Accent, { freq: number; vol: number }> = {
-  downbeat: { freq: 1800, vol: 0.9 },
-  beat: { freq: 1250, vol: 0.6 },
+  measure: { freq: 1568, vol: 0.9 },
+  beat: { freq: 1046, vol: 0.6 },
+  subdivision: { freq: 784, vol: 0.42 },
   countin: { freq: 720, vol: 0.38 },
 };
 

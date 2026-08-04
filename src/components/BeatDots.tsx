@@ -56,7 +56,12 @@ export function BeatDots({ step, fallbackBeats, fallbackSubdivisions = 1 }: Beat
   const subdivisions = step ? step.subdivisions : fallbackSubdivisions;
   const subActive = step ? step.subdivisionIndex : 0;
 
-  const tickColor = step && step.accent === 'countin' ? colors.countin : colors.accent;
+  const tickColor =
+    step && step.accent === 'countin'
+      ? colors.countin
+      : step && step.accent === 'subdivision'
+        ? colors.beat
+        : colors.accent;
 
   return (
     <View style={styles.wrap}>
@@ -71,7 +76,7 @@ export function BeatDots({ step, fallbackBeats, fallbackSubdivisions = 1 }: Beat
           if (step && step.accent === 'countin') {
             color = colors.countin;
           } else if (beatIndex === 1) {
-            color = colors.downbeat;
+            color = colors.measure;
           }
           return (
             <Dot key={i} active={isActive} color={color} dim={step === null} />
@@ -101,45 +106,45 @@ export function BeatDots({ step, fallbackBeats, fallbackSubdivisions = 1 }: Beat
 const styles = StyleSheet.create({
   wrap: {
     alignItems: 'center',
-    gap: 10,
+    gap: 8,
   },
   labelPill: {
     backgroundColor: colors.surfaceAlt,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: 999,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
   },
   label: {
     color: colors.textDim,
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '600',
     letterSpacing: 1,
     textTransform: 'uppercase',
   },
   dots: {
     flexDirection: 'row',
-    gap: 10,
+    gap: 8,
     alignItems: 'center',
-    minHeight: 18,
+    minHeight: 16,
   },
   dot: {
-    width: 12,
-    height: 12,
+    width: 10,
+    height: 10,
     borderRadius: 999,
     borderWidth: 1.5,
   },
   subRow: {
     flexDirection: 'row',
-    gap: 5,
+    gap: 4,
     alignItems: 'center',
-    height: 6,
+    height: 5,
   },
   subTick: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
+    width: 3,
+    height: 3,
+    borderRadius: 1.5,
     backgroundColor: colors.surfaceAlt,
     borderWidth: 1,
     borderColor: colors.border,

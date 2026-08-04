@@ -116,15 +116,15 @@ export function MetronomeScreen({ transport }: Props) {
 const styles = StyleSheet.create({
   content: {
     flexGrow: 1,
-    paddingVertical: 12,
+    paddingVertical: 10,
   },
   inner: {
     width: '100%',
     marginVertical: 'auto',
-    gap: 12,
+    gap: 10,
   },
   main: {
-    gap: 12,
+    gap: 10,
   },
   toggleRow: {
     flexDirection: 'row',
@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
   toggleLabel: {
     flex: 1,
     color: colors.text,
-    fontSize: 15,
+    fontSize: 14,
   },
   transport: {
     alignItems: 'center',

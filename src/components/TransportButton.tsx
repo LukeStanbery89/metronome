@@ -19,7 +19,7 @@ export function TransportButton({ isPlaying, onPress }: TransportButtonProps) {
     >
       <Ionicons
         name={isPlaying ? 'stop' : 'play'}
-        size={30}
+        size={26}
         color={isPlaying ? colors.stop : colors.onAccent}
         style={isPlaying ? styles.stopIcon : styles.playIcon}
       />
@@ -29,8 +29,8 @@ export function TransportButton({ isPlaying, onPress }: TransportButtonProps) {
 
 const styles = StyleSheet.create({
   btn: {
-    width: 72,
-    height: 72,
+    width: 64,
+    height: 64,
     borderRadius: 999,
     alignItems: 'center',
     justifyContent: 'center',

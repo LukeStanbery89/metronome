@@ -4,7 +4,7 @@ export interface TimeSignature {
   subdivision: number;
 }
 
-export type Accent = 'downbeat' | 'beat' | 'countin';
+export type Accent = 'measure' | 'beat' | 'subdivision' | 'countin';
 
 export type SegmentKind =
   | 'metronome'

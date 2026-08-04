@@ -18,7 +18,7 @@ export function Stepper({ onDecrement, onIncrement, disabled }: StepperProps) {
         style={({ pressed }) => [btnStyle, pressed && !disabled && styles.btnPressed]}
         hitSlop={8}
       >
-        <Ionicons name="remove" size={18} color={disabled ? colors.textFaint : colors.text} />
+        <Ionicons name="remove" size={16} color={disabled ? colors.textFaint : colors.text} />
       </Pressable>
       <Pressable
         onPress={onIncrement}
@@ -26,7 +26,7 @@ export function Stepper({ onDecrement, onIncrement, disabled }: StepperProps) {
         style={({ pressed }) => [btnStyle, pressed && !disabled && styles.btnPressed]}
         hitSlop={8}
       >
-        <Ionicons name="add" size={18} color={disabled ? colors.textFaint : colors.text} />
+        <Ionicons name="add" size={16} color={disabled ? colors.textFaint : colors.text} />
       </Pressable>
     </View>
   );
@@ -38,8 +38,8 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   btn: {
-    width: 38,
-    height: 38,
+    width: 34,
+    height: 34,
     borderRadius: radius.sm,
     backgroundColor: colors.surfaceAlt,
     borderWidth: 1,

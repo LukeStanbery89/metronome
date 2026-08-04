@@ -13,13 +13,19 @@ function measureSteps(
   const steps: BeatStep[] = [];
   for (let beat = 1; beat <= sig.beats; beat++) {
     for (let sub = 0; sub < sig.subdivision; sub++) {
+      const accent =
+        beat === 1 && sub === 0
+          ? 'measure'
+          : sub === 0
+            ? 'beat'
+            : 'subdivision';
       steps.push({
         segment,
         beatInMeasure: beat,
         totalBeats: sig.beats,
         subdivisionIndex: sub,
         subdivisions: sig.subdivision,
-        accent: beat === 1 && sub === 0 ? 'downbeat' : 'beat',
+        accent,
         groupIndex,
       });
     }
