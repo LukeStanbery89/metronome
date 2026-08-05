@@ -3,7 +3,6 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { BeatDots } from '../components/BeatDots';
 import { BpmControl } from '../components/BpmControl';
 import { Card } from '../components/Card';
-import { CountInControl } from '../components/CountInControl';
 import { TimeSignatureControl } from '../components/TimeSignatureControl';
 import { TransportButton } from '../components/TransportButton';
 import { buildMetronomePlan } from '../engine/sequence';
@@ -15,7 +14,6 @@ interface Settings {
   bpm: number;
   displayBpm: number;
   sig: TimeSignature;
-  countInBeats: number;
 }
 
 interface Props {
@@ -27,14 +25,13 @@ export function MetronomeScreen({ transport }: Props) {
     bpm: 120,
     displayBpm: 120,
     sig: { beats: 4, noteValue: 4, subdivision: 1 },
-    countInBeats: 0,
   });
 
   const applySettings = useCallback(
     (next: Settings) => {
       setSettings(next);
       if (transport.isPlaying) {
-        transport.restart(buildMetronomePlan(next.sig, next.countInBeats), next.bpm);
+        transport.restart(buildMetronomePlan(next.sig), next.bpm);
       }
     },
     [transport]
@@ -58,7 +55,7 @@ export function MetronomeScreen({ transport }: Props) {
     if (transport.isPlaying) {
       transport.stop();
     } else {
-      transport.start(buildMetronomePlan(settings.sig, settings.countInBeats), settings.bpm);
+      transport.start(buildMetronomePlan(settings.sig), settings.bpm);
     }
   };
 
@@ -84,24 +81,11 @@ export function MetronomeScreen({ transport }: Props) {
               beats={settings.sig.beats}
               noteValue={settings.sig.noteValue}
               subdivision={settings.sig.subdivision}
-              onBeatsChange={(beats) =>
-                applySettings({
-                  ...settings,
-                  sig: { ...settings.sig, beats },
-                  countInBeats: Math.min(settings.countInBeats, beats),
-                })
-              }
+              onBeatsChange={(beats) => setSig({ ...settings.sig, beats })}
               onNoteValueChange={(noteValue) => setSig({ ...settings.sig, noteValue })}
               onSubdivisionChange={(subdivision) =>
                 setSig({ ...settings.sig, subdivision })
               }
-            />
-          </Card>
-          <Card title="Count In">
-            <CountInControl
-              value={settings.countInBeats}
-              maxBeats={settings.sig.beats}
-              onChange={(countInBeats) => applySettings({ ...settings, countInBeats })}
             />
           </Card>
         </View>

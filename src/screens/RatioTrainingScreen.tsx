@@ -35,7 +35,7 @@ export function RatioTrainingScreen({ transport }: Props) {
     countInBeats1: 4,
     measures1: 1,
     sig2: { beats: 4, noteValue: 4, subdivision: 2 },
-    countInBeats2: 0,
+    countInBeats2: 4,
     measures2: 1,
   });
 
@@ -112,7 +112,7 @@ export function RatioTrainingScreen({ transport }: Props) {
               applySettings({
                 ...settings,
                 sig1: { ...settings.sig1, beats },
-                countInBeats1: Math.min(settings.countInBeats1, beats),
+                countInBeats1: Math.min(settings.countInBeats1, Math.max(4, beats)),
               })
             }
             onNoteValueChange={(noteValue) =>
@@ -128,7 +128,7 @@ export function RatioTrainingScreen({ transport }: Props) {
           />
           <CountInControl
             value={settings.countInBeats1}
-            maxBeats={settings.sig1.beats}
+            maxBeats={Math.max(4, settings.sig1.beats)}
             onChange={(countInBeats1) => applySettings({ ...settings, countInBeats1 })}
           />
         </Card>
@@ -141,7 +141,7 @@ export function RatioTrainingScreen({ transport }: Props) {
               applySettings({
                 ...settings,
                 sig2: { ...settings.sig2, beats },
-                countInBeats2: Math.min(settings.countInBeats2, beats),
+                countInBeats2: Math.min(settings.countInBeats2, Math.max(4, beats)),
               })
             }
             onNoteValueChange={(noteValue) =>
@@ -157,7 +157,7 @@ export function RatioTrainingScreen({ transport }: Props) {
           />
           <CountInControl
             value={settings.countInBeats2}
-            maxBeats={settings.sig2.beats}
+            maxBeats={Math.max(4, settings.sig2.beats)}
             onChange={(countInBeats2) => applySettings({ ...settings, countInBeats2 })}
           />
         </Card>

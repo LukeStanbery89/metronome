@@ -53,12 +53,9 @@ function countInSteps(
   return steps;
 }
 
-export function buildMetronomePlan(
-  sig: TimeSignature,
-  countInBeats: number
-): PlaybackPlan {
+export function buildMetronomePlan(sig: TimeSignature): PlaybackPlan {
   return {
-    intro: countInBeats > 0 ? countInSteps(sig, 'metronome', countInBeats) : [],
+    intro: [],
     loop: measureSteps(sig, 'metronome', 0),
   };
 }
