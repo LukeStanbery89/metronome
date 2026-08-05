@@ -7,7 +7,6 @@ import { TimeSignatureControl } from '../components/TimeSignatureControl';
 import { TransportButton } from '../components/TransportButton';
 import { buildMetronomePlan } from '../engine/sequence';
 import { Transport } from '../state/useTransport';
-import { spacing } from '../theme';
 import { TimeSignature } from '../types';
 
 interface Settings {
@@ -63,6 +62,9 @@ export function MetronomeScreen({ transport }: Props) {
     <ScrollView contentContainerStyle={styles.content}>
       <View style={styles.inner}>
         <View style={styles.main}>
+          <View style={styles.transport}>
+            <TransportButton isPlaying={transport.isPlaying} onPress={togglePlay} />
+          </View>
           <BeatDots
             step={transport.beat?.step ?? null}
             fallbackBeats={settings.sig.beats}
@@ -89,9 +91,6 @@ export function MetronomeScreen({ transport }: Props) {
             />
           </Card>
         </View>
-        <View style={styles.transport}>
-          <TransportButton isPlaying={transport.isPlaying} onPress={togglePlay} />
-        </View>
       </View>
     </ScrollView>
   );
@@ -104,7 +103,6 @@ const styles = StyleSheet.create({
   },
   inner: {
     width: '100%',
-    marginVertical: 'auto',
     gap: 10,
   },
   main: {
@@ -112,6 +110,5 @@ const styles = StyleSheet.create({
   },
   transport: {
     alignItems: 'center',
-    paddingTop: spacing.sm,
   },
 });

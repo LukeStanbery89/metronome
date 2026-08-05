@@ -49,7 +49,11 @@ function Dot({ active, color, dim }: DotProps) {
   );
 }
 
-export function BeatDots({ step, fallbackBeats, fallbackSubdivisions = 1 }: BeatDotsProps) {
+export function BeatDots({
+  step,
+  fallbackBeats,
+  fallbackSubdivisions = 1,
+}: BeatDotsProps) {
   const total = step ? step.totalBeats : fallbackBeats;
   const active = step ? step.beatInMeasure : 0;
   const label = step ? SEGMENT_LABELS[step.segment] : 'Ready';
@@ -83,22 +87,25 @@ export function BeatDots({ step, fallbackBeats, fallbackSubdivisions = 1 }: Beat
           );
         })}
       </View>
-      {subdivisions > 1 ? (
-        <View style={styles.subRow}>
-          {Array.from({ length: subdivisions }, (_, i) => (
-            <View
-              key={i}
-              style={[
-                styles.subTick,
-                step !== null && i === subActive && {
-                  backgroundColor: tickColor,
-                  borderColor: tickColor,
-                },
-              ]}
-            />
-          ))}
-        </View>
-      ) : null}
+      {/* The row is always rendered (fixed height) so starting/stopping the
+          metronome never shifts the layout; ticks appear only when the
+          signature actually has subdivisions. */}
+      <View style={styles.subRow}>
+        {subdivisions > 1
+          ? Array.from({ length: subdivisions }, (_, i) => (
+              <View
+                key={i}
+                style={[
+                  styles.subTick,
+                  step !== null && i === subActive && {
+                    backgroundColor: tickColor,
+                    borderColor: tickColor,
+                  },
+                ]}
+              />
+            ))
+          : null}
+      </View>
     </View>
   );
 }

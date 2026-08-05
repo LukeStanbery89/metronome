@@ -9,7 +9,6 @@ import { TimeSignatureControl } from '../components/TimeSignatureControl';
 import { TransportButton } from '../components/TransportButton';
 import { buildRatioPlan } from '../engine/sequence';
 import { Transport } from '../state/useTransport';
-import { spacing } from '../theme';
 import { TimeSignature } from '../types';
 
 interface Settings {
@@ -90,12 +89,15 @@ export function RatioTrainingScreen({ transport }: Props) {
     <ScrollView contentContainerStyle={styles.content}>
       <View style={styles.inner}>
         <View style={styles.main}>
+          <View style={styles.transport}>
+            <TransportButton isPlaying={transport.isPlaying} onPress={togglePlay} />
+          </View>
           <BeatDots
             step={transport.beat?.step ?? null}
             fallbackBeats={settings.sig1.beats}
             fallbackSubdivisions={settings.sig1.subdivision}
           />
-        <Card title="Tempo">
+          <Card title="Tempo">
           <BpmControl
             value={settings.bpm}
             displayValue={settings.displayBpm}
@@ -160,10 +162,7 @@ export function RatioTrainingScreen({ transport }: Props) {
             maxBeats={Math.max(4, settings.sig2.beats)}
             onChange={(countInBeats2) => applySettings({ ...settings, countInBeats2 })}
           />
-        </Card>
-        </View>
-        <View style={styles.transport}>
-          <TransportButton isPlaying={transport.isPlaying} onPress={togglePlay} />
+          </Card>
         </View>
       </View>
     </ScrollView>
@@ -177,7 +176,6 @@ const styles = StyleSheet.create({
   },
   inner: {
     width: '100%',
-    marginVertical: 'auto',
     gap: 10,
   },
   main: {
@@ -185,6 +183,5 @@ const styles = StyleSheet.create({
   },
   transport: {
     alignItems: 'center',
-    paddingTop: spacing.sm,
   },
 });
