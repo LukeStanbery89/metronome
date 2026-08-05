@@ -22,9 +22,11 @@ export class NativeAudioBackend implements AudioBackend {
     return Date.now() / 1000;
   }
 
-  init(): void {
+  async init(): Promise<void> {
     if (this.active) return;
     this.active = true;
+    // Plays even with the hardware ringer/mute switch on and keeps
+    // background music (practice tracks) audible underneath the clicks.
     setAudioModeAsync({
       playsInSilentMode: true,
       interruptionMode: 'mixWithOthers',
@@ -35,6 +37,8 @@ export class NativeAudioBackend implements AudioBackend {
       this.players.subdivision = createAudioPlayer(SOURCES.subdivision);
       this.players.countin = createAudioPlayer(SOURCES.countin);
     }
+    // Pump loop: expo-audio play() is async, so scheduled clicks are
+    // buffered here and fired off as their timestamps arrive.
     this.timer = setInterval(() => this.pump(), 4);
   }
 

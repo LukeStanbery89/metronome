@@ -2,7 +2,10 @@ import { AudioBackend } from '../audio/types';
 import { BeatStep } from '../types';
 import { PlaybackPlan } from './sequence';
 
+// Schedule audio events this far into the future (seconds). Long enough to
+// absorb UI jank, short enough that BPM/tempo changes feel immediate.
 const LOOKAHEAD = 0.12;
+// Tick cadence for the lookahead loop (ms).
 const TICK_MS = 25;
 
 export class Scheduler {
@@ -24,13 +27,18 @@ export class Scheduler {
     return this.timer !== null;
   }
 
-  start(
+  async start(
     plan: PlaybackPlan,
     bpm: number,
     onBeat: (step: BeatStep, beatIndex: number) => void
-  ): void {
+  ): Promise<void> {
     this.stop();
-    this.backend.init();
+    // Awaiting init() before anchoring the schedule guarantees the driver's
+    // clock is live. If the AudioContext is still suspended, its currentTime
+    // is frozen; scheduling against it would let all clicks pile up at the
+    // same instant once it finally resumes. On iOS a resume triggered by a
+    // user gesture (play tap) is required and resolves synchronously.
+    await this.backend.init();
     this.plan = plan;
     this.bpm = bpm;
     this.startTime = this.backend.now() + 0.05;
@@ -53,6 +61,8 @@ export class Scheduler {
     this.onBeat = null;
   }
 
+  // Resolves the step at a 0-based index: intro (count-in) first, then the
+  // main loop, wrapping around its length forever.
   private stepAt(index: number): BeatStep {
     const plan = this.plan as PlaybackPlan;
     if (index < plan.intro.length) {
@@ -64,11 +74,17 @@ export class Scheduler {
   private tick(): void {
     if (!this.plan) return;
     const until = this.backend.now() + LOOKAHEAD;
+    // Schedule every click that falls inside the lookahead window. The
+    // guard is a hard cap so a pathological plan can never spin forever in
+    // a single tick.
     let guard = 0;
     while (guard++ < 4096 && this.cursorTime <= until) {
       const step = this.stepAt(this.nextIndex);
       this.backend.scheduleClick(this.cursorTime, step.accent);
 
+      // The UI beat (progress dot) is driven by a setTimeout rather than the
+      // audio callbacks because audio playback timing is unreliable on
+      // mobile. The timeout targets the same absolute beat time.
       const time = this.cursorTime;
       const index = this.nextIndex;
       const handle = setTimeout(() => {
@@ -77,6 +93,7 @@ export class Scheduler {
       }, Math.max(0, (time - this.backend.now()) * 1000));
       this.uiTimeouts.add(handle);
 
+      // Advance the cursor by this step's duration in seconds.
       this.cursorTime += 60 / this.bpm / step.subdivisions;
       this.nextIndex++;
     }
