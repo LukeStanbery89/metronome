@@ -37,6 +37,7 @@ function Dot({ active, color, dim }: DotProps) {
 
   return (
     <Animated.View
+      testID="beat-dot"
       style={[
         styles.dot,
         {
@@ -72,7 +73,7 @@ export function BeatDots({
       <View style={styles.labelPill}>
         <Text style={styles.label}>{label}</Text>
       </View>
-      <View style={styles.dots}>
+      <View testID="beat-dots" style={styles.dots}>
         {Array.from({ length: total }, (_, i) => {
           const beatIndex = i + 1;
           const isActive = step !== null && active === beatIndex;
@@ -90,11 +91,12 @@ export function BeatDots({
       {/* The row is always rendered (fixed height) so starting/stopping the
           metronome never shifts the layout; ticks appear only when the
           signature actually has subdivisions. */}
-      <View style={styles.subRow}>
+      <View testID="sub-row" style={styles.subRow}>
         {subdivisions > 1
           ? Array.from({ length: subdivisions }, (_, i) => (
               <View
                 key={i}
+                testID="sub-tick"
                 style={[
                   styles.subTick,
                   step !== null && i === subActive && {

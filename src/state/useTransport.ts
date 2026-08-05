@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createAudioBackend } from '../audio';
+import { AudioBackend } from '../audio/types';
 import { Scheduler } from '../engine/scheduler';
 import { PlaybackPlan } from '../engine/sequence';
 import { BeatEvent } from '../types';
@@ -16,7 +17,10 @@ export interface Transport {
 // through its onBeat callback, which is what updates `beat` here; playback
 // start/stop itself is intentionally fire-and-forget (start is async but the
 // UI doesn't await it — the first beat callback follows quickly after).
-export function useTransport(): Transport {
+// The backend factory is injectable so tests can supply a fake driver.
+export function useTransport(
+  createBackend: () => AudioBackend = createAudioBackend
+): Transport {
   const schedulerRef = useRef<Scheduler | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [beat, setBeat] = useState<BeatEvent | null>(null);
@@ -25,10 +29,10 @@ export function useTransport(): Transport {
   // context is touched until the user actually presses play.
   const getScheduler = useCallback(() => {
     if (!schedulerRef.current) {
-      schedulerRef.current = new Scheduler(createAudioBackend());
+      schedulerRef.current = new Scheduler(createBackend());
     }
     return schedulerRef.current;
-  }, []);
+  }, [createBackend]);
 
   const start = useCallback(
     (plan: PlaybackPlan, bpm: number) => {
