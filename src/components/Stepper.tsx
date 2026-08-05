@@ -6,28 +6,48 @@ interface StepperProps {
   onDecrement: () => void;
   onIncrement: () => void;
   disabled?: boolean;
+  mode?: 'both' | 'decrement' | 'increment';
 }
 
-export function Stepper({ onDecrement, onIncrement, disabled }: StepperProps) {
-  const btnStyle = [styles.btn, disabled && styles.btnDisabled];
+function StepButton({
+  icon,
+  onPress,
+  disabled,
+}: {
+  icon: 'add' | 'remove';
+  onPress: () => void;
+  disabled?: boolean;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      disabled={disabled}
+      style={({ pressed }) => [
+        styles.btn,
+        disabled && styles.btnDisabled,
+        pressed && !disabled && styles.btnPressed,
+      ]}
+      hitSlop={8}
+    >
+      <Ionicons name={icon} size={16} color={disabled ? colors.textFaint : colors.text} />
+    </Pressable>
+  );
+}
+
+export function Stepper({
+  onDecrement,
+  onIncrement,
+  disabled,
+  mode = 'both',
+}: StepperProps) {
   return (
     <View style={styles.row}>
-      <Pressable
-        onPress={onDecrement}
-        disabled={disabled}
-        style={({ pressed }) => [btnStyle, pressed && !disabled && styles.btnPressed]}
-        hitSlop={8}
-      >
-        <Ionicons name="remove" size={16} color={disabled ? colors.textFaint : colors.text} />
-      </Pressable>
-      <Pressable
-        onPress={onIncrement}
-        disabled={disabled}
-        style={({ pressed }) => [btnStyle, pressed && !disabled && styles.btnPressed]}
-        hitSlop={8}
-      >
-        <Ionicons name="add" size={16} color={disabled ? colors.textFaint : colors.text} />
-      </Pressable>
+      {mode !== 'increment' ? (
+        <StepButton icon="remove" onPress={onDecrement} disabled={disabled} />
+      ) : null}
+      {mode !== 'decrement' ? (
+        <StepButton icon="add" onPress={onIncrement} disabled={disabled} />
+      ) : null}
     </View>
   );
 }

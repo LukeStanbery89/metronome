@@ -47,6 +47,7 @@ export function BpmControl({
     <View style={styles.wrap}>
       <View style={styles.readoutRow}>
         <Stepper
+          mode="decrement"
           onDecrement={() => onCommit(clamp(value - 1))}
           onIncrement={() => onCommit(clamp(value + 1))}
           disabled={disabled}
@@ -73,8 +74,9 @@ export function BpmControl({
           <Text style={styles.bpmUnit}>BPM</Text>
         </View>
         <Stepper
-          onDecrement={() => onCommit(clamp(value - 5))}
-          onIncrement={() => onCommit(clamp(value + 5))}
+          mode="increment"
+          onDecrement={() => onCommit(clamp(value - 1))}
+          onIncrement={() => onCommit(clamp(value + 1))}
           disabled={disabled}
         />
       </View>

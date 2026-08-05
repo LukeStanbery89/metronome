@@ -43,7 +43,7 @@ function countInSteps(
     steps.push({
       segment,
       beatInMeasure: beat,
-      totalBeats: sig.beats,
+      totalBeats: count,
       subdivisionIndex: 0,
       subdivisions: 1,
       accent: 'countin',
