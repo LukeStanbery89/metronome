@@ -1,25 +1,25 @@
 import { useCallback, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { BeatDots } from '../components/BeatDots';
 import { BpmControl } from '../components/BpmControl';
 import { Card } from '../components/Card';
+import { CountInControl } from '../components/CountInControl';
 import { MeasuresControl } from '../components/MeasuresControl';
 import { TimeSignatureControl } from '../components/TimeSignatureControl';
-import { Toggle } from '../components/Toggle';
 import { TransportButton } from '../components/TransportButton';
 import { buildRatioPlan } from '../engine/sequence';
 import { Transport } from '../state/useTransport';
-import { colors, spacing } from '../theme';
+import { spacing } from '../theme';
 import { TimeSignature } from '../types';
 
 interface Settings {
   bpm: number;
   displayBpm: number;
   sig1: TimeSignature;
-  countIn1: boolean;
+  countInBeats1: number;
   measures1: number;
   sig2: TimeSignature;
-  countIn2: boolean;
+  countInBeats2: number;
   measures2: number;
 }
 
@@ -32,10 +32,10 @@ export function RatioTrainingScreen({ transport }: Props) {
     bpm: 120,
     displayBpm: 120,
     sig1: { beats: 4, noteValue: 4, subdivision: 1 },
-    countIn1: true,
+    countInBeats1: 4,
     measures1: 1,
     sig2: { beats: 4, noteValue: 4, subdivision: 2 },
-    countIn2: false,
+    countInBeats2: 0,
     measures2: 1,
   });
 
@@ -46,10 +46,10 @@ export function RatioTrainingScreen({ transport }: Props) {
         transport.restart(
           buildRatioPlan(
             next.sig1,
-            next.countIn1,
+            next.countInBeats1,
             next.measures1,
             next.sig2,
-            next.countIn2,
+            next.countInBeats2,
             next.measures2
           ),
           next.bpm
@@ -75,10 +75,10 @@ export function RatioTrainingScreen({ transport }: Props) {
       transport.start(
         buildRatioPlan(
           settings.sig1,
-          settings.countIn1,
+          settings.countInBeats1,
           settings.measures1,
           settings.sig2,
-          settings.countIn2,
+          settings.countInBeats2,
           settings.measures2
         ),
         settings.bpm
@@ -109,7 +109,11 @@ export function RatioTrainingScreen({ transport }: Props) {
             noteValue={settings.sig1.noteValue}
             subdivision={settings.sig1.subdivision}
             onBeatsChange={(beats) =>
-              applySettings({ ...settings, sig1: { ...settings.sig1, beats } })
+              applySettings({
+                ...settings,
+                sig1: { ...settings.sig1, beats },
+                countInBeats1: Math.min(settings.countInBeats1, beats),
+              })
             }
             onNoteValueChange={(noteValue) =>
               applySettings({ ...settings, sig1: { ...settings.sig1, noteValue } })
@@ -122,13 +126,11 @@ export function RatioTrainingScreen({ transport }: Props) {
             value={settings.measures1}
             onChange={(measures1) => applySettings({ ...settings, measures1 })}
           />
-          <View style={styles.toggleRow}>
-            <Text style={styles.toggleLabel}>Count in one measure</Text>
-            <Toggle
-              value={settings.countIn1}
-              onChange={(countIn1) => applySettings({ ...settings, countIn1 })}
-            />
-          </View>
+          <CountInControl
+            value={settings.countInBeats1}
+            maxBeats={settings.sig1.beats}
+            onChange={(countInBeats1) => applySettings({ ...settings, countInBeats1 })}
+          />
         </Card>
         <Card title="Group 2">
           <TimeSignatureControl
@@ -136,7 +138,11 @@ export function RatioTrainingScreen({ transport }: Props) {
             noteValue={settings.sig2.noteValue}
             subdivision={settings.sig2.subdivision}
             onBeatsChange={(beats) =>
-              applySettings({ ...settings, sig2: { ...settings.sig2, beats } })
+              applySettings({
+                ...settings,
+                sig2: { ...settings.sig2, beats },
+                countInBeats2: Math.min(settings.countInBeats2, beats),
+              })
             }
             onNoteValueChange={(noteValue) =>
               applySettings({ ...settings, sig2: { ...settings.sig2, noteValue } })
@@ -149,13 +155,11 @@ export function RatioTrainingScreen({ transport }: Props) {
             value={settings.measures2}
             onChange={(measures2) => applySettings({ ...settings, measures2 })}
           />
-          <View style={styles.toggleRow}>
-            <Text style={styles.toggleLabel}>Count in one measure</Text>
-            <Toggle
-              value={settings.countIn2}
-              onChange={(countIn2) => applySettings({ ...settings, countIn2 })}
-            />
-          </View>
+          <CountInControl
+            value={settings.countInBeats2}
+            maxBeats={settings.sig2.beats}
+            onChange={(countInBeats2) => applySettings({ ...settings, countInBeats2 })}
+          />
         </Card>
         </View>
         <View style={styles.transport}>
@@ -178,17 +182,6 @@ const styles = StyleSheet.create({
   },
   main: {
     gap: 10,
-  },
-  toggleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: spacing.md,
-  },
-  toggleLabel: {
-    flex: 1,
-    color: colors.text,
-    fontSize: 14,
   },
   transport: {
     alignItems: 'center',

@@ -33,9 +33,13 @@ function measureSteps(
   return steps;
 }
 
-function countInSteps(sig: TimeSignature, segment: SegmentKind): BeatStep[] {
+function countInSteps(
+  sig: TimeSignature,
+  segment: SegmentKind,
+  count: number
+): BeatStep[] {
   const steps: BeatStep[] = [];
-  for (let beat = 1; beat <= sig.beats; beat++) {
+  for (let beat = 1; beat <= count; beat++) {
     steps.push({
       segment,
       beatInMeasure: beat,
@@ -51,28 +55,28 @@ function countInSteps(sig: TimeSignature, segment: SegmentKind): BeatStep[] {
 
 export function buildMetronomePlan(
   sig: TimeSignature,
-  countIn: boolean
+  countInBeats: number
 ): PlaybackPlan {
   return {
-    intro: countIn ? countInSteps(sig, 'metronome') : [],
+    intro: countInBeats > 0 ? countInSteps(sig, 'metronome', countInBeats) : [],
     loop: measureSteps(sig, 'metronome', 0),
   };
 }
 
 export function buildRatioPlan(
   sig1: TimeSignature,
-  countIn1: boolean,
+  countInBeats1: number,
   measures1: number,
   sig2: TimeSignature,
-  countIn2: boolean,
+  countInBeats2: number,
   measures2: number
 ): PlaybackPlan {
   const loop: BeatStep[] = [];
-  if (countIn1) loop.push(...countInSteps(sig1, 'count-in-1'));
+  if (countInBeats1 > 0) loop.push(...countInSteps(sig1, 'count-in-1', countInBeats1));
   for (let m = 0; m < measures1; m++) {
     loop.push(...measureSteps(sig1, 'group-1', 0));
   }
-  if (countIn2) loop.push(...countInSteps(sig2, 'count-in-2'));
+  if (countInBeats2 > 0) loop.push(...countInSteps(sig2, 'count-in-2', countInBeats2));
   for (let m = 0; m < measures2; m++) {
     loop.push(...measureSteps(sig2, 'group-2', 1));
   }

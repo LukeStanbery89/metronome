@@ -1,21 +1,21 @@
 import { useCallback, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { BeatDots } from '../components/BeatDots';
 import { BpmControl } from '../components/BpmControl';
 import { Card } from '../components/Card';
+import { CountInControl } from '../components/CountInControl';
 import { TimeSignatureControl } from '../components/TimeSignatureControl';
-import { Toggle } from '../components/Toggle';
 import { TransportButton } from '../components/TransportButton';
 import { buildMetronomePlan } from '../engine/sequence';
 import { Transport } from '../state/useTransport';
-import { colors, spacing } from '../theme';
+import { spacing } from '../theme';
 import { TimeSignature } from '../types';
 
 interface Settings {
   bpm: number;
   displayBpm: number;
   sig: TimeSignature;
-  countIn: boolean;
+  countInBeats: number;
 }
 
 interface Props {
@@ -27,14 +27,14 @@ export function MetronomeScreen({ transport }: Props) {
     bpm: 120,
     displayBpm: 120,
     sig: { beats: 4, noteValue: 4, subdivision: 1 },
-    countIn: false,
+    countInBeats: 0,
   });
 
   const applySettings = useCallback(
     (next: Settings) => {
       setSettings(next);
       if (transport.isPlaying) {
-        transport.restart(buildMetronomePlan(next.sig, next.countIn), next.bpm);
+        transport.restart(buildMetronomePlan(next.sig, next.countInBeats), next.bpm);
       }
     },
     [transport]
@@ -49,11 +49,6 @@ export function MetronomeScreen({ transport }: Props) {
     [settings, applySettings]
   );
 
-  const setCountIn = useCallback(
-    (countIn: boolean) => applySettings({ ...settings, countIn }),
-    [settings, applySettings]
-  );
-
   const setSig = useCallback(
     (sig: TimeSignature) => applySettings({ ...settings, sig }),
     [settings, applySettings]
@@ -63,7 +58,7 @@ export function MetronomeScreen({ transport }: Props) {
     if (transport.isPlaying) {
       transport.stop();
     } else {
-      transport.start(buildMetronomePlan(settings.sig, settings.countIn), settings.bpm);
+      transport.start(buildMetronomePlan(settings.sig, settings.countInBeats), settings.bpm);
     }
   };
 
@@ -89,7 +84,13 @@ export function MetronomeScreen({ transport }: Props) {
               beats={settings.sig.beats}
               noteValue={settings.sig.noteValue}
               subdivision={settings.sig.subdivision}
-              onBeatsChange={(beats) => setSig({ ...settings.sig, beats })}
+              onBeatsChange={(beats) =>
+                applySettings({
+                  ...settings,
+                  sig: { ...settings.sig, beats },
+                  countInBeats: Math.min(settings.countInBeats, beats),
+                })
+              }
               onNoteValueChange={(noteValue) => setSig({ ...settings.sig, noteValue })}
               onSubdivisionChange={(subdivision) =>
                 setSig({ ...settings.sig, subdivision })
@@ -97,12 +98,11 @@ export function MetronomeScreen({ transport }: Props) {
             />
           </Card>
           <Card title="Count In">
-            <View style={styles.toggleRow}>
-              <Text style={styles.toggleLabel}>
-                Count in one measure before starting
-              </Text>
-              <Toggle value={settings.countIn} onChange={setCountIn} />
-            </View>
+            <CountInControl
+              value={settings.countInBeats}
+              maxBeats={settings.sig.beats}
+              onChange={(countInBeats) => applySettings({ ...settings, countInBeats })}
+            />
           </Card>
         </View>
         <View style={styles.transport}>
@@ -125,17 +125,6 @@ const styles = StyleSheet.create({
   },
   main: {
     gap: 10,
-  },
-  toggleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: spacing.md,
-  },
-  toggleLabel: {
-    flex: 1,
-    color: colors.text,
-    fontSize: 14,
   },
   transport: {
     alignItems: 'center',
