@@ -16,14 +16,18 @@
   },
   "devDependencies": {
     "@types/react": "~19.2.2",
-    "typescript": "~6.0.3"
+    "@vitest/coverage-v8": "^4.1.10",
+    "typescript": "~6.0.3",
+    "vitest": "^4.1.10"
   },
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "build": "expo export -p web"
+    "build": "expo export -p web",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "engines": {
     "node": ">=22.13.0"
