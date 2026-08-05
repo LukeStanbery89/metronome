@@ -40,7 +40,7 @@ function Dot({ active, color, dim }: DotProps) {
       style={[
         styles.dot,
         {
-          backgroundColor: active ? color : dim ? colors.surfaceAlt : colors.surfaceAlt,
+          backgroundColor: active ? color : colors.surfaceAlt,
           borderColor: active ? color : dim ? colors.textFaint : colors.border,
           transform: [{ scale }],
         },

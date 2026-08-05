@@ -8,12 +8,12 @@ import { MeasuresControl } from '../components/MeasuresControl';
 import { TimeSignatureControl } from '../components/TimeSignatureControl';
 import { TransportButton } from '../components/TransportButton';
 import { buildRatioPlan } from '../engine/sequence';
+import { useBpm } from '../state/useBpm';
 import { Transport } from '../state/useTransport';
 import { TimeSignature } from '../types';
+import { clampCountIn } from '../utils/clamp';
 
 interface Settings {
-  bpm: number;
-  displayBpm: number;
   sig1: TimeSignature;
   countInBeats1: number;
   measures1: number;
@@ -28,8 +28,6 @@ interface Props {
 
 export function RatioTrainingScreen({ transport }: Props) {
   const [settings, setSettings] = useState<Settings>({
-    bpm: 120,
-    displayBpm: 120,
     sig1: { beats: 4, noteValue: 4, subdivision: 1 },
     countInBeats1: 4,
     measures1: 1,
@@ -38,34 +36,34 @@ export function RatioTrainingScreen({ transport }: Props) {
     measures2: 1,
   });
 
+  // Every settings change rebuilds the plan and, if a session is running,
+  // restarts it immediately so edits apply on the next loop cycle.
   const applySettings = useCallback(
-    (next: Settings) => {
-      setSettings(next);
+    (next: { bpm: number } & Settings) => {
+      const { bpm, ...rest } = next;
+      setSettings(rest);
       if (transport.isPlaying) {
         transport.restart(
           buildRatioPlan(
-            next.sig1,
-            next.countInBeats1,
-            next.measures1,
-            next.sig2,
-            next.countInBeats2,
-            next.measures2
+            rest.sig1,
+            rest.countInBeats1,
+            rest.measures1,
+            rest.sig2,
+            rest.countInBeats2,
+            rest.measures2
           ),
-          next.bpm
+          bpm
         );
       }
     },
     [transport]
   );
 
-  const previewBpm = useCallback((v: number) => {
-    setSettings((s) => ({ ...s, displayBpm: v }));
-  }, []);
-
-  const commitBpm = useCallback(
-    (v: number) => applySettings({ ...settings, bpm: v, displayBpm: v }),
+  const onCommitBpm = useCallback(
+    (bpm: number) => applySettings({ bpm, ...settings }),
     [settings, applySettings]
   );
+  const { bpm, displayBpm, previewBpm, commitBpm } = useBpm(120, onCommitBpm);
 
   const togglePlay = () => {
     if (transport.isPlaying) {
@@ -80,7 +78,7 @@ export function RatioTrainingScreen({ transport }: Props) {
           settings.countInBeats2,
           settings.measures2
         ),
-        settings.bpm
+        bpm
       );
     }
   };
@@ -98,70 +96,93 @@ export function RatioTrainingScreen({ transport }: Props) {
             fallbackSubdivisions={settings.sig1.subdivision}
           />
           <Card title="Tempo">
-          <BpmControl
-            value={settings.bpm}
-            displayValue={settings.displayBpm}
-            onPreview={previewBpm}
-            onCommit={commitBpm}
-          />
-        </Card>
-        <Card title="Group 1">
-          <TimeSignatureControl
-            beats={settings.sig1.beats}
-            noteValue={settings.sig1.noteValue}
-            subdivision={settings.sig1.subdivision}
-            onBeatsChange={(beats) =>
-              applySettings({
-                ...settings,
-                sig1: { ...settings.sig1, beats },
-                countInBeats1: Math.min(settings.countInBeats1, Math.max(4, beats)),
-              })
-            }
-            onNoteValueChange={(noteValue) =>
-              applySettings({ ...settings, sig1: { ...settings.sig1, noteValue } })
-            }
-            onSubdivisionChange={(subdivision) =>
-              applySettings({ ...settings, sig1: { ...settings.sig1, subdivision } })
-            }
-          />
-          <MeasuresControl
-            value={settings.measures1}
-            onChange={(measures1) => applySettings({ ...settings, measures1 })}
-          />
-          <CountInControl
-            value={settings.countInBeats1}
-            maxBeats={Math.max(4, settings.sig1.beats)}
-            onChange={(countInBeats1) => applySettings({ ...settings, countInBeats1 })}
-          />
-        </Card>
-        <Card title="Group 2">
-          <TimeSignatureControl
-            beats={settings.sig2.beats}
-            noteValue={settings.sig2.noteValue}
-            subdivision={settings.sig2.subdivision}
-            onBeatsChange={(beats) =>
-              applySettings({
-                ...settings,
-                sig2: { ...settings.sig2, beats },
-                countInBeats2: Math.min(settings.countInBeats2, Math.max(4, beats)),
-              })
-            }
-            onNoteValueChange={(noteValue) =>
-              applySettings({ ...settings, sig2: { ...settings.sig2, noteValue } })
-            }
-            onSubdivisionChange={(subdivision) =>
-              applySettings({ ...settings, sig2: { ...settings.sig2, subdivision } })
-            }
-          />
-          <MeasuresControl
-            value={settings.measures2}
-            onChange={(measures2) => applySettings({ ...settings, measures2 })}
-          />
-          <CountInControl
-            value={settings.countInBeats2}
-            maxBeats={Math.max(4, settings.sig2.beats)}
-            onChange={(countInBeats2) => applySettings({ ...settings, countInBeats2 })}
-          />
+            <BpmControl
+              value={bpm}
+              displayValue={displayBpm}
+              onPreview={previewBpm}
+              onCommit={commitBpm}
+            />
+          </Card>
+          <Card title="Group 1">
+            <TimeSignatureControl
+              beats={settings.sig1.beats}
+              noteValue={settings.sig1.noteValue}
+              subdivision={settings.sig1.subdivision}
+              onBeatsChange={(beats) =>
+                applySettings({
+                  bpm,
+                  ...settings,
+                  sig1: { ...settings.sig1, beats },
+                  // Keep the count-in within the new max when beats shrink.
+                  countInBeats1: clampCountIn(settings.countInBeats1, beats),
+                })
+              }
+              onNoteValueChange={(noteValue) =>
+                applySettings({
+                  bpm,
+                  ...settings,
+                  sig1: { ...settings.sig1, noteValue },
+                })
+              }
+              onSubdivisionChange={(subdivision) =>
+                applySettings({
+                  bpm,
+                  ...settings,
+                  sig1: { ...settings.sig1, subdivision },
+                })
+              }
+            />
+            <MeasuresControl
+              value={settings.measures1}
+              onChange={(measures1) => applySettings({ bpm, ...settings, measures1 })}
+            />
+            <CountInControl
+              value={settings.countInBeats1}
+              maxBeats={Math.max(4, settings.sig1.beats)}
+              onChange={(countInBeats1) =>
+                applySettings({ bpm, ...settings, countInBeats1 })
+              }
+            />
+          </Card>
+          <Card title="Group 2">
+            <TimeSignatureControl
+              beats={settings.sig2.beats}
+              noteValue={settings.sig2.noteValue}
+              subdivision={settings.sig2.subdivision}
+              onBeatsChange={(beats) =>
+                applySettings({
+                  bpm,
+                  ...settings,
+                  sig2: { ...settings.sig2, beats },
+                  countInBeats2: clampCountIn(settings.countInBeats2, beats),
+                })
+              }
+              onNoteValueChange={(noteValue) =>
+                applySettings({
+                  bpm,
+                  ...settings,
+                  sig2: { ...settings.sig2, noteValue },
+                })
+              }
+              onSubdivisionChange={(subdivision) =>
+                applySettings({
+                  bpm,
+                  ...settings,
+                  sig2: { ...settings.sig2, subdivision },
+                })
+              }
+            />
+            <MeasuresControl
+              value={settings.measures2}
+              onChange={(measures2) => applySettings({ bpm, ...settings, measures2 })}
+            />
+            <CountInControl
+              value={settings.countInBeats2}
+              maxBeats={Math.max(4, settings.sig2.beats)}
+              onChange={(countInBeats2) =>
+                applySettings({ bpm, ...settings, countInBeats2 })
+              }
+            />
           </Card>
         </View>
       </View>

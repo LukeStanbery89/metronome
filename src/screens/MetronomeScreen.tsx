@@ -6,29 +6,26 @@ import { Card } from '../components/Card';
 import { TimeSignatureControl } from '../components/TimeSignatureControl';
 import { TransportButton } from '../components/TransportButton';
 import { buildMetronomePlan } from '../engine/sequence';
+import { useBpm } from '../state/useBpm';
 import { Transport } from '../state/useTransport';
 import { TimeSignature } from '../types';
-
-interface Settings {
-  bpm: number;
-  displayBpm: number;
-  sig: TimeSignature;
-}
 
 interface Props {
   transport: Transport;
 }
 
 export function MetronomeScreen({ transport }: Props) {
-  const [settings, setSettings] = useState<Settings>({
-    bpm: 120,
-    displayBpm: 120,
-    sig: { beats: 4, noteValue: 4, subdivision: 1 },
+  const [sig, setSigState] = useState<TimeSignature>({
+    beats: 4,
+    noteValue: 4,
+    subdivision: 1,
   });
 
+  // Committing a BPM change restarts a running metronome immediately; the
+  // applySettings pattern is shared with the ratio trainer via useBpm.
   const applySettings = useCallback(
-    (next: Settings) => {
-      setSettings(next);
+    (next: { bpm: number; sig: TimeSignature }) => {
+      setSigState(next.sig);
       if (transport.isPlaying) {
         transport.restart(buildMetronomePlan(next.sig), next.bpm);
       }
@@ -36,25 +33,22 @@ export function MetronomeScreen({ transport }: Props) {
     [transport]
   );
 
-  const previewBpm = useCallback((v: number) => {
-    setSettings((s) => ({ ...s, displayBpm: v }));
-  }, []);
-
-  const commitBpm = useCallback(
-    (v: number) => applySettings({ ...settings, bpm: v, displayBpm: v }),
-    [settings, applySettings]
+  const onCommitBpm = useCallback(
+    (bpm: number) => applySettings({ bpm, sig }),
+    [sig, applySettings]
   );
+  const { bpm, displayBpm, previewBpm, commitBpm } = useBpm(120, onCommitBpm);
 
   const setSig = useCallback(
-    (sig: TimeSignature) => applySettings({ ...settings, sig }),
-    [settings, applySettings]
+    (nextSig: TimeSignature) => applySettings({ bpm, sig: nextSig }),
+    [bpm, applySettings]
   );
 
   const togglePlay = () => {
     if (transport.isPlaying) {
       transport.stop();
     } else {
-      transport.start(buildMetronomePlan(settings.sig), settings.bpm);
+      transport.start(buildMetronomePlan(sig), bpm);
     }
   };
 
@@ -67,27 +61,25 @@ export function MetronomeScreen({ transport }: Props) {
           </View>
           <BeatDots
             step={transport.beat?.step ?? null}
-            fallbackBeats={settings.sig.beats}
-            fallbackSubdivisions={settings.sig.subdivision}
+            fallbackBeats={sig.beats}
+            fallbackSubdivisions={sig.subdivision}
           />
           <Card title="Tempo">
             <BpmControl
-              value={settings.bpm}
-              displayValue={settings.displayBpm}
+              value={bpm}
+              displayValue={displayBpm}
               onPreview={previewBpm}
               onCommit={commitBpm}
             />
           </Card>
           <Card title="Time Signature">
             <TimeSignatureControl
-              beats={settings.sig.beats}
-              noteValue={settings.sig.noteValue}
-              subdivision={settings.sig.subdivision}
-              onBeatsChange={(beats) => setSig({ ...settings.sig, beats })}
-              onNoteValueChange={(noteValue) => setSig({ ...settings.sig, noteValue })}
-              onSubdivisionChange={(subdivision) =>
-                setSig({ ...settings.sig, subdivision })
-              }
+              beats={sig.beats}
+              noteValue={sig.noteValue}
+              subdivision={sig.subdivision}
+              onBeatsChange={(beats) => setSig({ ...sig, beats })}
+              onNoteValueChange={(noteValue) => setSig({ ...sig, noteValue })}
+              onSubdivisionChange={(subdivision) => setSig({ ...sig, subdivision })}
             />
           </Card>
         </View>

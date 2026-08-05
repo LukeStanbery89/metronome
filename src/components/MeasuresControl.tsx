@@ -1,14 +1,12 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { colors } from '../theme';
+import { clampMeasures } from '../utils/clamp';
 import { Stepper } from './Stepper';
 
 interface MeasuresControlProps {
   value: number;
   onChange: (value: number) => void;
 }
-
-const MIN_MEASURES = 1;
-const MAX_MEASURES = 8;
 
 export function MeasuresControl({ value, onChange }: MeasuresControlProps) {
   return (
@@ -18,8 +16,8 @@ export function MeasuresControl({ value, onChange }: MeasuresControlProps) {
         <Text style={styles.value}>{value}</Text>
       </View>
       <Stepper
-        onDecrement={() => onChange(Math.max(MIN_MEASURES, value - 1))}
-        onIncrement={() => onChange(Math.min(MAX_MEASURES, value + 1))}
+        onDecrement={() => onChange(clampMeasures(value - 1))}
+        onIncrement={() => onChange(clampMeasures(value + 1))}
       />
     </View>
   );

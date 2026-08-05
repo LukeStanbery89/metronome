@@ -20,7 +20,6 @@ export interface BeatStep {
   subdivisionIndex: number;
   subdivisions: number;
   accent: Accent;
-  groupIndex: number;
 }
 
 export interface BeatEvent {

@@ -2,6 +2,7 @@ import Slider from '@react-native-community/slider';
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { colors, radius, spacing } from '../theme';
+import { BPM_MAX, BPM_MIN, clampBpm } from '../utils/clamp';
 import { Stepper } from './Stepper';
 
 interface BpmControlProps {
@@ -10,13 +11,6 @@ interface BpmControlProps {
   onPreview: (value: number) => void;
   onCommit: (value: number) => void;
   disabled?: boolean;
-}
-
-const MIN_BPM = 30;
-const MAX_BPM = 280;
-
-function clamp(v: number): number {
-  return Math.round(Math.min(MAX_BPM, Math.max(MIN_BPM, v)));
 }
 
 export function BpmControl({
@@ -29,14 +23,19 @@ export function BpmControl({
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState('');
 
+  // Keep the text field in sync with the committed value whenever we're not
+  // actively editing (slider drags, steppers, external changes).
   useEffect(() => {
     if (!editing) setDraft(String(displayValue));
   }, [displayValue, editing]);
 
+  // The slider previews continuously while dragging (onPreview) but only
+  // commits once (onSlidingComplete), so the metronome doesn't restart on
+  // every thumb movement. Steppers commit immediately.
   const commitDraft = () => {
     const parsed = parseInt(draft, 10);
     if (!Number.isNaN(parsed)) {
-      onCommit(clamp(parsed));
+      onCommit(clampBpm(parsed));
     } else {
       setDraft(String(displayValue));
     }
@@ -48,8 +47,8 @@ export function BpmControl({
       <View style={styles.readoutRow}>
         <Stepper
           mode="decrement"
-          onDecrement={() => onCommit(clamp(value - 1))}
-          onIncrement={() => onCommit(clamp(value + 1))}
+          onDecrement={() => onCommit(clampBpm(value - 1))}
+          onIncrement={() => onCommit(clampBpm(value + 1))}
           disabled={disabled}
         />
         <View style={styles.readout}>
@@ -75,15 +74,15 @@ export function BpmControl({
         </View>
         <Stepper
           mode="increment"
-          onDecrement={() => onCommit(clamp(value - 1))}
-          onIncrement={() => onCommit(clamp(value + 1))}
+          onDecrement={() => onCommit(clampBpm(value - 1))}
+          onIncrement={() => onCommit(clampBpm(value + 1))}
           disabled={disabled}
         />
       </View>
       <Slider
         style={styles.slider}
-        minimumValue={MIN_BPM}
-        maximumValue={MAX_BPM}
+        minimumValue={BPM_MIN}
+        maximumValue={BPM_MAX}
         step={1}
         value={displayValue}
         minimumTrackTintColor={colors.accent}

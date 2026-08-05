@@ -14,7 +14,6 @@ export class Scheduler {
   private uiTimeouts: Set<ReturnType<typeof setTimeout>> = new Set();
   private plan: PlaybackPlan | null = null;
   private bpm = 120;
-  private startTime = 0;
   private cursorTime = 0;
   private nextIndex = 0;
   private onBeat: ((step: BeatStep, beatIndex: number) => void) | null = null;
@@ -41,8 +40,9 @@ export class Scheduler {
     await this.backend.init();
     this.plan = plan;
     this.bpm = bpm;
-    this.startTime = this.backend.now() + 0.05;
-    this.cursorTime = this.startTime;
+    // Anchor the schedule slightly in the future so the first click isn't
+    // scheduled at (or behind) the current instant.
+    this.cursorTime = this.backend.now() + 0.05;
     this.nextIndex = 0;
     this.onBeat = onBeat;
     this.timer = setInterval(() => this.tick(), TICK_MS);

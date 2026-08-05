@@ -12,11 +12,17 @@ export interface Transport {
   stop: () => void;
 }
 
+// Bridges the audio Scheduler into React state. The scheduler drives beats
+// through its onBeat callback, which is what updates `beat` here; playback
+// start/stop itself is intentionally fire-and-forget (start is async but the
+// UI doesn't await it — the first beat callback follows quickly after).
 export function useTransport(): Transport {
   const schedulerRef = useRef<Scheduler | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [beat, setBeat] = useState<BeatEvent | null>(null);
 
+  // The backend + scheduler are created lazily on the first start so no audio
+  // context is touched until the user actually presses play.
   const getScheduler = useCallback(() => {
     if (!schedulerRef.current) {
       schedulerRef.current = new Scheduler(createAudioBackend());
@@ -35,6 +41,9 @@ export function useTransport(): Transport {
     [getScheduler]
   );
 
+  // restart applies a settings change mid-playback. It is guarded by the
+  // scheduler's isRunning so edits made while stopped don't silently start
+  // playback; the screens only call it when transport.isPlaying is true.
   const restart = useCallback(
     (plan: PlaybackPlan, bpm: number) => {
       if (!schedulerRef.current?.isRunning) return;
@@ -52,6 +61,7 @@ export function useTransport(): Transport {
     setIsPlaying(false);
   }, []);
 
+  // Tear down any running playback if the screen unmounts.
   useEffect(() => {
     return () => schedulerRef.current?.stop();
   }, []);

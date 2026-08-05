@@ -2,6 +2,7 @@ import Slider from '@react-native-community/slider';
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { colors, spacing } from '../theme';
+import { countInReadout } from '../utils/countIn';
 
 interface CountInControlProps {
   value: number;
@@ -9,16 +10,12 @@ interface CountInControlProps {
   onChange: (value: number) => void;
 }
 
-function readout(value: number): string {
-  if (value <= 0) return 'Off';
-  return value === 1 ? '1 beat' : `${value} beats`;
-}
-
 export function CountInControl({
   value,
   maxBeats,
   onChange,
 }: CountInControlProps) {
+  // While dragging, show the thumb's position; commit only on release.
   const [preview, setPreview] = useState<number | null>(null);
   const display = preview ?? value;
 
@@ -26,7 +23,7 @@ export function CountInControl({
     <View style={styles.wrap}>
       <View style={styles.readoutRow}>
         <Text style={styles.label}>Count in</Text>
-        <Text style={styles.value}>{readout(display)}</Text>
+        <Text style={styles.value}>{countInReadout(display)}</Text>
       </View>
       <Slider
         style={styles.slider}
